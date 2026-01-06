@@ -201,7 +201,8 @@
                 </div>
             </div>
             
-            <div id="commandsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- סרגל הפקודות: עמודה אחת כברירת מחדל; JavaScript יעדכן את מספר העמודות בהתאם למספר הפקודות -->
+            <div id="commandsGrid" class="grid grid-cols-1 gap-6">
                 <!-- Cards injected here -->
             </div>
         </div>
@@ -521,9 +522,17 @@
 
             renderCommands(commands) {
                 const grid = document.getElementById('commandsGrid');
+                // אם אין פקודות תואמות – הצג הודעה והתא את העמודה לאחת
                 if (commands.length === 0) {
+                    grid.className = 'grid grid-cols-1 gap-6';
                     grid.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400">לא נמצאו פקודות תואמות...</div>';
                     return;
+                }
+                // קבע את מספר העמודות על־פי כמות הפקודות
+                if (commands.length === 1) {
+                    grid.className = 'grid grid-cols-1 gap-6';
+                } else {
+                    grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
                 }
                 grid.innerHTML = commands.map(cmd => `
                     <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between h-full">

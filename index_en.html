@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Updated application name to pkugit -->
+    <title>pkugit - Git commands guide</title>
+    <!-- PWA manifest -->
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --git-primary: #F05032;
+            --git-secondary: #333333;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            --bg-light: #f3f4f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--git-secondary);
+        }
+
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            height: 300px;
+        }
+
+        .workflow-step {
+            transition: all 0.3s ease;
+        }
+        .workflow-step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .cmd-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-right: 4px solid transparent;
+        }
+        .cmd-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-right-color: var(--git-primary);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .mobile-menu {
+            transition: max-height 0.3s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .mobile-menu.active {
+            max-height: 600px;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <div class="relative">
+    <!-- Hero background image: replaced with user-provided image -->
+    <div class="absolute inset-0 bg-[url('hero.jpg')] bg-cover bg-center opacity-20 pointer-events-none"></div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50 border-t-4 border-[#F05032]">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="app.resetView()">
+                    <i class="fab fa-git-alt text-[#F05032] text-4xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">pkugit</h1>
+                        <p class="text-xs text-gray-500">The complete and comprehensive Git guide</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex space-x-6 space-x-reverse text-sm font-medium">
+                    <button onclick="app.filterLevel('basic')" class="nav-btn hover:text-[#F05032] transition-colors">Basic</button>
+                    <button onclick="app.filterLevel('advanced')" class="nav-btn hover:text-[#F05032] transition-colors">Advanced</button>
+                    <button onclick="app.filterLevel('master')" class="nav-btn hover:text-[#F05032] transition-colors">Expert</button>
+                    <button onclick="app.showSection('workflows')" class="nav-btn hover:text-[#F05032] transition-colors">Workflows</button>
+                    <button onclick="app.showSection('troubleshoot')" class="nav-btn hover:text-[#F05032] transition-colors">Troubleshooting</button>
+                </nav>
+
+                <!-- Language Selector (desktop) -->
+                <div class="hidden md:block ml-4">
+                    <select onchange="location.href=this.value" class="p-2 border rounded bg-white text-gray-700">
+                        <option value="index.html">עברית</option>
+                        <option value="index_en.html" selected>English</option>
+                        <option value="index_ru.html">Русский</option>
+                        <option value="index_fr.html">Français</option>
+                    </select>
+                </div>
+
+                <!-- Search -->
+                <div class="hidden md:block relative">
+                    <input type="text" id="searchInput" placeholder="Search for a command (e.g., checkout)..." 
+                           class="pr-10 pl-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#F05032] w-64">
+                    <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
+                </div>
+
+
+                <button class="md:hidden text-gray-600 focus:outline-none" onclick="document.querySelector('.mobile-menu').classList.toggle('active')">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="mobile-menu md:hidden mt-2 bg-gray-50 rounded-lg shadow-inner">
+                <div class="flex flex-col p-4 space-y-2">
+                    <input type="text" placeholder="Search..." oninput="app.handleSearch(this.value)" class="p-2 border rounded w-full mb-2">
+                    <button onclick="app.filterLevel('basic')" class="text-right py-2 border-b">Basic</button>
+                    <button onclick="app.filterLevel('advanced')" class="text-right py-2 border-b">Advanced</button>
+                    <button onclick="app.filterLevel('master')" class="text-right py-2 border-b">Expert</button>
+                    <button onclick="app.showSection('workflows')" class="text-right py-2 border-b">Workflows</button>
+                    <button onclick="app.showSection('troubleshoot')" class="text-right py-2">Troubleshooting</button>
+                    <!-- Language Selector (mobile) -->
+                    <select onchange="location.href=this.value" class="p-2 border rounded w-full mt-2">
+                        <option value="index.html">עברית</option>
+                        <option value="index_en.html" selected>English</option>
+                        <option value="index_ru.html">Русский</option>
+                        <option value="index_fr.html">Français</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="mainContent" class="flex-grow container mx-auto px-4 py-8 relative z-10">
+        
+        <!-- Hero Section -->
+        <div id="heroSection" class="text-center py-10 fade-in">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">All Git commands in one place</h2>
+            <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                The complete guide updated with every cheat sheet command. Search for a command or choose a level to start.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-green-500 cursor-pointer hover:shadow-md transition" onclick="app.filterLevel('basic')">
+                    <i class="fas fa-seedling text-green-500 text-3xl mb-3"></i>
+                    <h3 class="text-lg font-bold">Beginners</h3>
+                    <p class="text-sm text-gray-500">Configuration, init, basic workflow, logs and remote connection.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-blue-500 cursor-pointer hover:shadow-md transition" onclick="app.filterLevel('advanced')">
+                    <i class="fas fa-code-branch text-blue-500 text-3xl mb-3"></i>
+                    <h3 class="text-lg font-bold">Advanced</h3>
+                    <p class="text-sm text-gray-500">Stash, Rebase, Cherry‑pick, Reflog and comparisons.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-purple-500 cursor-pointer hover:shadow-md transition" onclick="app.filterLevel('master')">
+                    <i class="fas fa-hat-wizard text-purple-500 text-3xl mb-3"></i>
+                    <h3 class="text-lg font-bold">Experts</h3>
+                    <p class="text-sm text-gray-500">Bisect, submodules, worktrees, hooks and repository maintenance.</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto">
+                <h3 class="text-lg font-bold mb-4 text-gray-700">Command distribution on the site</h3>
+                <div class="chart-container">
+                    <canvas id="commandsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commands Grid Section -->
+        <div id="commandsSection" class="hidden fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 id="sectionTitle" class="text-3xl font-bold text-gray-800 border-r-4 border-[#F05032] pr-4">Commands</h2>
+                    <p id="sectionDesc" class="text-gray-500 text-sm mt-1 pr-4"></p>
+                </div>
+                <div class="flex items-center space-x-2 space-x-reverse bg-white p-2 rounded shadow-sm">
+                    <span class="text-sm text-gray-500 flex items-center whitespace-nowrap"><i class="fas fa-filter ml-2"></i> Filter category:</span>
+                    <select id="categoryFilter" onchange="app.filterCategory()" class="border-none focus:ring-0 text-sm bg-transparent font-bold text-[#F05032]">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="commandsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Cards injected here -->
+            </div>
+        </div>
+
+        <!-- Workflows Section -->
+        <div id="workflowsSection" class="hidden fade-in">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-r-4 border-[#F05032] pr-4">Workflows</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Simple Workflow -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                    <div class="bg-gray-800 p-4 text-white flex justify-between items-center">
+                        <h3 class="font-bold">Feature Branch Workflow</h3>
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="relative border-l-2 border-dashed border-gray-300 ml-4 pl-8 space-y-6">
+                            <div class="workflow-step relative">
+                                <div class="absolute -right-12 top-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs z-10">1</div>
+                                <h4 class="font-bold text-gray-800">Create branch</h4>
+                                <code class="block bg-gray-100 p-2 rounded text-xs mt-1 text-left font-mono" dir="ltr">git checkout -b feature/name main</code>
+                            </div>
+                            <div class="workflow-step relative">
+                                <div class="absolute -right-12 top-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs z-10">2</div>
+                                <h4 class="font-bold text-gray-800">Develop & commit</h4>
+                                <code class="block bg-gray-100 p-2 rounded text-xs mt-1 text-left font-mono" dir="ltr">git add . && git commit -m "Work"</code>
+                            </div>
+                            <div class="workflow-step relative">
+                                <div class="absolute -right-12 top-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs z-10">3</div>
+                                <h4 class="font-bold text-gray-800">Merge</h4>
+                                <code class="block bg-gray-100 p-2 rounded text-xs mt-1 text-left font-mono" dir="ltr">git checkout main && git merge feature/name</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Rebase Workflow -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                    <div class="bg-[#F05032] p-4 text-white flex justify-between items-center">
+                        <h3 class="font-bold">Rebase Workflow</h3>
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-sm text-gray-600 mb-4">Keep a linear and clean history before merging:</p>
+                        <div class="space-y-3 font-mono text-xs" dir="ltr">
+                            <div class="p-2 bg-gray-100 rounded">git fetch origin</div>
+                            <div class="p-2 bg-gray-100 rounded">git rebase origin/main</div>
+                            <div class="p-2 bg-gray-100 rounded text-gray-500 italic"># Resolve conflicts if any</div>
+                            <div class="p-2 bg-gray-100 rounded">git push --force-with-lease</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Troubleshooting Section -->
+        <div id="troubleshootSection" class="hidden fade-in">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-r-4 border-[#F05032] pr-4">Troubleshooting</h2>
+            <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="ts-options">
+                    <button onclick="app.showSolution('undo-commit')" class="p-4 border rounded-lg hover:bg-[#F05032] hover:text-white transition text-right group">
+                        <i class="fas fa-undo ml-2 text-[#F05032] group-hover:text-white"></i> Undo local commit (keep changes)
+                    </button>
+                    <button onclick="app.showSolution('wrong-branch')" class="p-4 border rounded-lg hover:bg-[#F05032] hover:text-white transition text-right group">
+                        <i class="fas fa-exchange-alt ml-2 text-[#F05032] group-hover:text-white"></i> Commit made to wrong branch
+                    </button>
+                    <button onclick="app.showSolution('unstage')" class="p-4 border rounded-lg hover:bg-[#F05032] hover:text-white transition text-right group">
+                        <i class="fas fa-backspace ml-2 text-[#F05032] group-hover:text-white"></i> Undo git add for a file
+                    </button>
+                    <button onclick="app.showSolution('recover')" class="p-4 border rounded-lg hover:bg-[#F05032] hover:text-white transition text-right group">
+                        <i class="fas fa-life-ring ml-2 text-[#F05032] group-hover:text-white"></i> Recover a deleted branch
+                    </button>
+                </div>
+
+                <div id="ts-solution" class="hidden mt-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-lg text-[#F05032]" id="ts-solution-title"></h4>
+                        <button onclick="document.getElementById('ts-solution').classList.add('hidden')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                    </div>
+                    <p class="mb-4 text-gray-700" id="ts-solution-desc"></p>
+                    <div class="bg-[#1e1e1e] p-4 rounded-lg text-left" dir="ltr">
+                        <code id="ts-solution-code" class="text-green-400 font-mono text-sm"></code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-10 mt-12 border-b-8 border-[#F05032]">
+        <div class="container mx-auto px-4 text-center">
+           <div class="flex justify-center space-x-6 space-x-reverse mb-6">
+  <a href="https://github.com/" class="text-2xl hover:text-[#F05032]" target="_blank" aria-label="GitHub">
+    <i class="fab fa-github"></i>
+  </a>
+  <a href="https://stackoverflow.com/questions" class="text-2xl hover:text-[#F05032]" target="_blank" aria-label="Stack Overflow">
+    <i class="fab fa-stack-overflow"></i>
+  </a>
+</div>
+
+            <p class="text-gray-400 text-sm mb-2">Updated with all commands from the Complete Reference Guide</p>
+            <a href="https://share.google/ASExj6dNud3na5a0d" class="text-xs text-gray-500" style="color: aqua; font-size: 100%;">Created by Menni Diskind and Chat... :) based on what Yosef sent.</a>
+        </div>
+    </footer>
+    </div>
+    <script>
+        let gitData = {
+            basic: {
+                title: "פקודות בסיסיות",
+                desc: "היסודות שכל מפתח חייב להכיר: הגדרות, יצירת מאגר, זרימת עבודה יומיומית וניהול ענפים.",
+                categories: ["הגדרות", "אתחול", "עבודה שוטפת", "היסטוריה", "ענפים", "מיזוג", "שרת מרוחק", "ביטול שינויים", "תיוג"],
+                commands: [
+                    // Configuration
+                    { cmd: 'git config --global user.name "Name"', desc: 'הגדרת שם המשתמש הגלובלי לכל הקומיטים במערכת.', cat: 'הגדרות', example: 'git config --global user.name "John Doe"' },
+                    { cmd: 'git config --global user.email "email"', desc: 'הגדרת המייל הגלובלי שיופיע בהיסטוריית הפרויקט.', cat: 'הגדרות', example: 'git config --global user.email "john@example.com"' },
+                    { cmd: 'git config --list', desc: 'הצגת כל הגדרות ה-Git הנוכחיות המוגדרות במערכת.', cat: 'הגדרות', example: 'git config --list' },
+                    { cmd: 'git config --global --edit', desc: 'פתיחת קובץ ההגדרות הגלובלי בעורך הטקסט המוגדר.', cat: 'הגדרות', example: 'git config --global --edit' },
+                    // Setup
+                    { cmd: 'git init', desc: 'יצירת מאגר Git חדש (תיקיית .git) בתיקייה הנוכחית.', cat: 'אתחול', example: 'git init' },
+                    { cmd: 'git clone <url>', desc: 'הורדת עותק מלא של מאגר מרוחק למחשב המקומי.', cat: 'אתחול', example: 'git clone https://github.com/user/repo.git' },
+                    { cmd: 'git clone <url> <dir>', desc: 'שכפול מאגר מרוחק לתוך תיקייה בשם ספציפי.', cat: 'אתחול', example: 'git clone <url> my-custom-folder' },
+                    // Workflow
+                    { cmd: 'git status', desc: 'הצגת המצב הנוכחי: קבצים ששונו, קבצים מוכנים (staged) וענף נוכחי.', cat: 'עבודה שוטפת', example: 'git status' },
+                    { cmd: 'git add <file>', desc: 'הוספת קובץ ספציפי לאזור ההכנה (Staging) לקראת קומיט.', cat: 'עבודה שוטפת', example: 'git add index.html' },
+                    { cmd: 'git add .', desc: 'הוספת כל הקבצים ששונו בתיקייה הנוכחית ל-Staging.', cat: 'עבודה שוטפת', example: 'git add .' },
+                    { cmd: 'git add -A', desc: 'הוספת כל השינויים במאגר (כולל מחיקות) ל-Staging.', cat: 'עבודה שוטפת', example: 'git add -A' },
+                    { cmd: 'git add -p', desc: 'הוספה אינטראקטיבית: מאפשר לבחור חלקים ספציפיים (chunks) מתוך קובץ.', cat: 'עבודה שוטפת', example: 'git add -p file.txt' },
+                    { cmd: 'git commit -m "msg"', desc: 'יצירת קומיט (Snapshot) עם הודעה המתארת את השינויים.', cat: 'עבודה שוטפת', example: 'git commit -m "Fix login bug"' },
+                    { cmd: 'git commit -am "msg"', desc: 'הוספה של כל הקבצים המעוקבים וביצוע קומיט בפעולה אחת.', cat: 'עבודה שוטפת', example: 'git commit -am "Quick fix"' },
+                    { cmd: 'git commit --amend', desc: 'עריכת הקומיט האחרון (הוספת קבצים או שינוי הודעה).', cat: 'עבודה שוטפת', example: 'git commit --amend --no-edit' },
+                    // History
+                    { cmd: 'git log', desc: 'הצגת רשימת הקומיטים המלאה בסדר כרונולוגי הפוך.', cat: 'היסטוריה', example: 'git log' },
+                    { cmd: 'git log --oneline', desc: 'הצגת ההיסטוריה בצורה תמציתית (שורה אחת לקומיט).', cat: 'היסטוריה', example: 'git log --oneline' },
+                    { cmd: 'git log --graph', desc: 'הצגת ההיסטוריה עם תרשים ASCII של ענפים ומיזוגים.', cat: 'היסטוריה', example: 'git log --graph --oneline --all' },
+                    { cmd: 'git log -p', desc: 'הצגת השינויים (diff) המפורטים שבוצעו בכל קומיט.', cat: 'היסטוריה', example: 'git log -p' },
+                    { cmd: 'git show <commit>', desc: 'הצגת פרטים מלאים ושינויי קוד של קומיט ספציפי.', cat: 'היסטוריה', example: 'git show abc1234' },
+                    { cmd: 'git diff', desc: 'הצגת שינויים שבוצעו בקבצים אך עדיין לא נוספו ל-Staging.', cat: 'היסטוריה', example: 'git diff' },
+                    { cmd: 'git diff --staged', desc: 'הצגת השינויים שנמצאים ב-Staging וייכנסו לקומיט הבא.', cat: 'היסטוריה', example: 'git diff --staged' },
+                    // Branching
+                    { cmd: 'git branch', desc: 'רשימת כל הענפים המקומיים. הענף הנוכחי מסומן ב-* .', cat: 'ענפים', example: 'git branch' },
+                    { cmd: 'git branch <name>', desc: 'יצירת ענף חדש (ללא מעבר אליו).', cat: 'ענפים', example: 'git branch feature-x' },
+                    { cmd: 'git checkout <branch>', desc: 'מעבר לענף קיים.', cat: 'ענפים', example: 'git checkout main' },
+                    { cmd: 'git checkout -b <name>', desc: 'יצירת ענף חדש ומעבר אליו מיד.', cat: 'ענפים', example: 'git checkout -b new-feature' },
+                    { cmd: 'git switch <branch>', desc: 'הפקודה המודרנית למעבר בין ענפים.', cat: 'ענפים', example: 'git switch dev' },
+                    { cmd: 'git branch -d <name>', desc: 'מחיקת ענף (בטוחה: לא ימחק אם יש שינויים שלא מוגזו).', cat: 'ענפים', example: 'git branch -d old-feature' },
+                    { cmd: 'git branch -D <name>', desc: 'מחיקת ענף בכוח (גם אם לא מוזג).', cat: 'ענפים', example: 'git branch -D experimental' },
+                    // Merging
+                    { cmd: 'git merge <branch>', desc: 'מיזוג ענף ספציפי לתוך הענף הנוכחי.', cat: 'מיזוג', example: 'git merge feature-a' },
+                    { cmd: 'git merge --no-ff', desc: 'מיזוג תוך יצירת קומיט מיזוג תמיד (שומר על היסטוריית ענפים).', cat: 'מיזוג', example: 'git merge --no-ff feature-b' },
+                    { cmd: 'git merge --abort', desc: 'ביטול תהליך המיזוג וחזרה למצב שלפניו (במקרה של קונפליקטים).', cat: 'מיזוג', example: 'git merge --abort' },
+                    // Remote
+                    { cmd: 'git remote -v', desc: 'הצגת רשימת השרתים המרוחקים והכתובות שלהם.', cat: 'שרת מרוחק', example: 'git remote -v' },
+                    { cmd: 'git remote add <n> <u>', desc: 'חיבור המאגר המקומי לשרת מרוחק חדש.', cat: 'שרת מרוחק', example: 'git remote add origin https://...' },
+                    { cmd: 'git fetch', desc: 'הורדת עדכונים מהשרת המרוחק מבלי לשנות את קבצי העבודה.', cat: 'שרת מרוחק', example: 'git fetch origin' },
+                    { cmd: 'git pull', desc: 'הורדת עדכונים ומיזוגם לענף הנוכחי באופן מיידי.', cat: 'שרת מרוחק', example: 'git pull origin main' },
+                    { cmd: 'git push', desc: 'העלאת הקומיטים המקומיים לשרת המרוחק.', cat: 'שרת מרוחק', example: 'git push origin main' },
+                    { cmd: 'git push -u origin <br>', desc: 'העלאת ענף חדש והגדרתו כענף המעקב (upstream).', cat: 'שרת מרוחק', example: 'git push -u origin feature' },
+                    // Undo
+                    { cmd: 'git restore <file>', desc: 'ביטול שינויים בקובץ וחזרה למצב האחרון בקומיט.', cat: 'ביטול שינויים', example: 'git restore config.json' },
+                    { cmd: 'git restore --staged <f>', desc: 'הוצאת קובץ מאזור ה-Staging (החזרה למצב modified).', cat: 'ביטול שינויים', example: 'git restore --staged index.html' },
+                    { cmd: 'git clean -fd', desc: 'מחיקת כל הקבצים והתיקיות שאינם במעקב (untracked).', cat: 'ביטול שינויים', example: 'git clean -fd' },
+                    // Tagging
+                    { cmd: 'git tag', desc: 'רשימת כל התגים (גרסאות) במאגר.', cat: 'תיוג', example: 'git tag' },
+                    { cmd: 'git tag -a <v> -m "msg"', desc: 'יצירת תג מוערך (Annotated) עם הודעה.', cat: 'תיוג', example: 'git tag -a v1.0 -m "Release v1"' }
+                ]
+            },
+            advanced: {
+                title: "פקודות מתקדמות",
+                desc: "שליטה מתקדמת בהיסטוריה, שחזור נתונים, עבודה עם Stash וניהול מורכב של ענפים.",
+                categories: ["ענפים מתקדם", "מיזוג מתקדם", "Stashing", "איפוס (Reset)", "ביטול (Revert)", "שכתוב (Rebase)", "Cherry-picking", "היסטוריה עמוקה", "בדיקה והשוואה"],
+                commands: [
+                    // Advanced Branching
+                    { cmd: 'git branch -vv', desc: 'הצגת ענפים עם מידע מפורט על מצבם מול ה-Remote.', cat: 'ענפים מתקדם', example: 'git branch -vv' },
+                    { cmd: 'git branch --merged', desc: 'הצגת ענפים שכבר מוזגו לענף הנוכחי (בטוחים למחיקה).', cat: 'ענפים מתקדם', example: 'git branch --merged' },
+                    // Advanced Merging
+                    { cmd: 'git merge --squash <br>', desc: 'מיזוג כל הקומיטים מהענף לקומיט אחד בודד בענף היעד.', cat: 'מיזוג מתקדם', example: 'git merge --squash feature-x' },
+                    { cmd: 'git merge -X ours <br>', desc: 'מיזוג תוך פתרון קונפליקטים אוטומטי לטובת הגרסה שלנו.', cat: 'מיזוג מתקדם', example: 'git merge -X ours main' },
+                    // Stashing
+                    { cmd: 'git stash', desc: 'שמירה זמנית של שינויים לא גמורים בצד וניקוי סביבת העבודה.', cat: 'Stashing', example: 'git stash' },
+                    { cmd: 'git stash list', desc: 'הצגת רשימת כל השמירות הזמניות (stashes).', cat: 'Stashing', example: 'git stash list' },
+                    { cmd: 'git stash pop', desc: 'החזרת השמירה האחרונה ומחיקתה מהרשימה.', cat: 'Stashing', example: 'git stash pop' },
+                    { cmd: 'git stash apply stash@{n}', desc: 'החלת שמירה ספציפית מבלי למחוק אותה.', cat: 'Stashing', example: 'git stash apply stash@{1}' },
+                    { cmd: 'git stash clear', desc: 'מחיקת כל השמירות הזמניות לצמיתות.', cat: 'Stashing', example: 'git stash clear' },
+                    // Reset
+                    { cmd: 'git reset --soft HEAD~1', desc: 'ביטול הקומיט האחרון. השינויים נשארים ב-Staging.', cat: 'איפוס (Reset)', example: 'git reset --soft HEAD~1' },
+                    { cmd: 'git reset --mixed HEAD~1', desc: 'ביטול קומיט. השינויים נשארים בקבצים אך יוצאים מ-Staging.', cat: 'איפוס (Reset)', example: 'git reset HEAD~1' },
+                    { cmd: 'git reset --hard HEAD~1', desc: 'מחיקה מוחלטת של הקומיט האחרון וכל השינויים בו. זהירות!', cat: 'איפוס (Reset)', example: 'git reset --hard HEAD~1' },
+                    // Revert
+                    { cmd: 'git revert <commit>', desc: 'יצירת קומיט חדש שמבצע פעולה הפוכה מקומיט ספציפי (בטוח ל-Remote).', cat: 'ביטול (Revert)', example: 'git revert abc1234' },
+                    // Rebase
+                    { cmd: 'git rebase <branch>', desc: 'העברת היסטוריית הענף הנוכחי והדבקתה מעל קצה של ענף אחר.', cat: 'שכתוב (Rebase)', example: 'git rebase main' },
+                    { cmd: 'git rebase -i HEAD~n', desc: 'ריבייס אינטראקטיבי: עריכה, איחוד (squash) או מחיקת קומיטים מההיסטוריה.', cat: 'שכתוב (Rebase)', example: 'git rebase -i HEAD~3' },
+                    // Cherry-pick
+                    { cmd: 'git cherry-pick <commit>', desc: 'העתקת קומיט ספציפי מענף אחד והחלתו על הענף הנוכחי.', cat: 'Cherry-picking', example: 'git cherry-pick abc1234' },
+                    // Advanced History
+                    { cmd: 'git reflog', desc: 'יומן תנועות ה-HEAD. מאפשר לשחזר כמעט כל דבר, גם אם "נמחק".', cat: 'היסטוריה עמוקה', example: 'git reflog' },
+                    { cmd: 'git log -S "string"', desc: 'חיפוש קומיטים שהוסיפו או הסירו מחרוזת טקסט ספציפית.', cat: 'היסטוריה עמוקה', example: 'git log -S "apiKey"' },
+                    { cmd: 'git blame <file>', desc: 'הצגת הקומיט והכותב האחרון עבור כל שורה בקובץ.', cat: 'היסטוריה עמוקה', example: 'git blame index.js' },
+                    // Inspection
+                    { cmd: 'git diff <b1>..<b2>', desc: 'השוואת הבדלים בין שני ענפים שונים.', cat: 'בדיקה והשוואה', example: 'git diff main..dev' },
+                    { cmd: 'git ls-files -o', desc: 'הצגת רשימת כל הקבצים שאינם במעקב (untracked).', cat: 'בדיקה והשוואה', example: 'git ls-files -o' }
+                ]
+            },
+            master: {
+                title: "פקודות למומחים",
+                desc: "כלים מתקדמים לניהול פרויקטים מורכבים, תיקון היסטוריה עמוקה, תחזוקה ואיתור באגים.",
+                categories: ["איתור באגים (Bisect)", "Submodules", "Worktrees", "תחזוקה", "שחזור וכלים", "Patching", "הגדרות מתקדמות"],
+                commands: [
+                    // Bisect
+                    { cmd: 'git bisect start', desc: 'תחילת חיפוש בינארי לאיתור הקומיט שבו נוצר באג.', cat: 'איתור באגים (Bisect)', example: 'git bisect start\ngit bisect bad\ngit bisect good v1.0' },
+                    { cmd: 'git bisect run <script>', desc: 'הרצה אוטומטית של סקריפט בדיקה כדי למצוא את הקומיט הבעייתי.', cat: 'איתור באגים (Bisect)', example: 'git bisect run npm test' },
+                    // Submodules
+                    { cmd: 'git submodule add <url>', desc: 'הוספת פרויקט Git אחר כתיקיית משנה בתוך הפרויקט שלך.', cat: 'Submodules', example: 'git submodule add https://...' },
+                    { cmd: 'git submodule update --init', desc: 'אתחול ועדכון כל תתי-המודולים בפרויקט משוכפל.', cat: 'Submodules', example: 'git submodule update --init --recursive' },
+                    // Worktrees
+                    { cmd: 'git worktree add <path> <br>', desc: 'ניהול מספר ענפים בו-זמנית בתיקיות נפרדות באותו המחשב.', cat: 'Worktrees', example: 'git worktree add ../feature-branch dev' },
+                    // Maintenance
+                    { cmd: 'git gc --aggressive', desc: 'ביצוע אופטימיזציה עמוקה למאגר הנתונים (Garbage Collection).', cat: 'תחזוקה', example: 'git gc --aggressive' },
+                    { cmd: 'git fsck', desc: 'בדיקת תקינות הקבצים הפנימיים של המאגר.', cat: 'תחזוקה', example: 'git fsck --full' },
+                    { cmd: 'git count-objects -vH', desc: 'הצגת סטטיסטיקות על הגודל והאובייקטים במאגר.', cat: 'תחזוקה', example: 'git count-objects -vH' },
+                    // Patching
+                    { cmd: 'git format-patch HEAD~1', desc: 'יצירת קובץ טלאי (patch) מקומיט שניתן לשלוח במייל.', cat: 'Patching', example: 'git format-patch HEAD~1' },
+                    { cmd: 'git apply <patch>', desc: 'החלת שינויים מקובץ טלאי מבלי ליצור קומיט.', cat: 'Patching', example: 'git apply fix.patch' },
+                    // Advanced History Rewrite
+                    { cmd: 'git filter-repo', desc: 'כלי מודרני לשכתוב היסטוריה (למשל הסרת קבצים רגישים מכל העבר).', cat: 'שחזור וכלים', example: 'git filter-repo --path secret.txt --invert-paths' },
+                    { cmd: 'git rev-parse HEAD', desc: 'חילוץ ה-Hash המלא של הקומיט הנוכחי.', cat: 'שחזור וכלים', example: 'git rev-parse HEAD' },
+                    { cmd: 'git describe', desc: 'יצירת שם גרסה קריא המבוסס על התג האחרון והקומיטים מאז.', cat: 'שחזור וכלים', example: 'git describe' },
+                    // Advanced Config
+                    { cmd: 'git config --global alias.<name> <cmd>', desc: 'יצירת קיצור דרך (alias) לפקודה ארוכה.', cat: 'הגדרות מתקדמות', example: 'git config --global alias.co checkout' }
+                ]
+            }
+        };
+
+        let troubleshootingData = {
+            'undo-commit': {
+                title: 'ביטול קומיט אחרון (שמירת עבודה)',
+                desc: 'הקומיט יבוטל, אך כל השינויים שביצעת יישארו ב-Staging כדי שתוכל לתקן אותם.',
+                code: 'git reset --soft HEAD~1'
+            },
+            'wrong-branch': {
+                title: 'הקומיט בוצע לענף הלא נכון',
+                desc: 'העבר את הקומיט האחרון לענף אחר ובטל אותו מהנוכחי:',
+                code: 'git branch correct-branch\ngit reset --hard HEAD~1\ngit checkout correct-branch'
+            },
+            'unstage': {
+                title: 'ביטול git add לקובץ',
+                desc: 'הסרת קובץ שהוספת בטעות ל-Staging מבלי למחוק את השינויים בו:',
+                code: 'git restore --staged <file_name>'
+            },
+            'recover': {
+                title: 'שחזור ענף שנמחק',
+                desc: 'מצא את ה-Hash של הענף ב-Reflog ושחזר אותו:',
+                code: 'git reflog\n# מצא את הקומיט האחרון בענף\ngit checkout -b recovered-branch <hash>'
+            }
+        };
+
+        // Override the datasets with English translations. The original Hebrew definitions above remain for reference
+        // but are not used because we reassign gitData and troubleshootingData here. The English version retains
+        // identical command names while translating descriptions, titles, and category names.
+        gitData = {
+            basic: {
+                title: "Basic commands",
+                desc: "The essentials every developer must know: configuration, repository creation, daily workflow and branch management.",
+                categories: ["Configuration", "Initialization", "Workflow", "History", "Branches", "Merging", "Remote", "Undo Changes", "Tagging"],
+                commands: [
+                    // Configuration
+                    { cmd: 'git config --global user.name "Name"', desc: 'Set the global user name for all commits in the system.', cat: 'Configuration', example: 'git config --global user.name "John Doe"' },
+                    { cmd: 'git config --global user.email "email"', desc: 'Set the global email address that will appear in the project history.', cat: 'Configuration', example: 'git config --global user.email "john@example.com"' },
+                    { cmd: 'git config --list', desc: 'Display all current Git configuration settings in the system.', cat: 'Configuration', example: 'git config --list' },
+                    { cmd: 'git config --global --edit', desc: 'Open the global configuration file in the default text editor.', cat: 'Configuration', example: 'git config --global --edit' },
+                    // Setup
+                    { cmd: 'git init', desc: 'Create a new Git repository (.git directory) in the current folder.', cat: 'Initialization', example: 'git init' },
+                    { cmd: 'git clone <url>', desc: 'Download a full copy of a remote repository to the local machine.', cat: 'Initialization', example: 'git clone https://github.com/user/repo.git' },
+                    { cmd: 'git clone <url> <dir>', desc: 'Clone a remote repository into a specific folder.', cat: 'Initialization', example: 'git clone <url> my-custom-folder' },
+                    // Workflow
+                    { cmd: 'git status', desc: 'Show the current status: modified files, staged files and current branch.', cat: 'Workflow', example: 'git status' },
+                    { cmd: 'git add <file>', desc: 'Add a specific file to the staging area before committing.', cat: 'Workflow', example: 'git add index.html' },
+                    { cmd: 'git add .', desc: 'Add all changed files in the current directory to the staging area.', cat: 'Workflow', example: 'git add .' },
+                    { cmd: 'git add -A', desc: 'Add all changes in the repository (including deletions) to the staging area.', cat: 'Workflow', example: 'git add -A' },
+                    { cmd: 'git add -p', desc: 'Interactive add: allows you to choose specific parts (chunks) of a file.', cat: 'Workflow', example: 'git add -p file.txt' },
+                    { cmd: 'git commit -m "msg"', desc: 'Create a commit (snapshot) with a message describing the changes.', cat: 'Workflow', example: 'git commit -m "Fix login bug"' },
+                    { cmd: 'git commit -am "msg"', desc: 'Add all tracked files and commit in a single step.', cat: 'Workflow', example: 'git commit -am "Quick fix"' },
+                    { cmd: 'git commit --amend', desc: 'Edit the last commit (add files or change the message).', cat: 'Workflow', example: 'git commit --amend --no-edit' },
+                    // History
+                    { cmd: 'git log', desc: 'Display the full list of commits in reverse chronological order.', cat: 'History', example: 'git log' },
+                    { cmd: 'git log --oneline', desc: 'Show the history concisely (one line per commit).', cat: 'History', example: 'git log --oneline' },
+                    { cmd: 'git log --graph', desc: 'Show the history with an ASCII graph of branches and merges.', cat: 'History', example: 'git log --graph --oneline --all' },
+                    { cmd: 'git log -p', desc: 'Show detailed diffs of changes made in each commit.', cat: 'History', example: 'git log -p' },
+                    { cmd: 'git show <commit>', desc: 'Show full details and code changes of a specific commit.', cat: 'History', example: 'git show abc1234' },
+                    { cmd: 'git diff', desc: 'Show changes made to files that have not yet been staged.', cat: 'History', example: 'git diff' },
+                    { cmd: 'git diff --staged', desc: 'Show changes that are staged and will be included in the next commit.', cat: 'History', example: 'git diff --staged' },
+                    // Branching
+                    { cmd: 'git branch', desc: 'List all local branches. The current branch is marked with *.', cat: 'Branches', example: 'git branch' },
+                    { cmd: 'git branch <name>', desc: 'Create a new branch (without switching to it).', cat: 'Branches', example: 'git branch feature-x' },
+                    { cmd: 'git checkout <branch>', desc: 'Switch to an existing branch.', cat: 'Branches', example: 'git checkout main' },
+                    { cmd: 'git checkout -b <name>', desc: 'Create a new branch and switch to it immediately.', cat: 'Branches', example: 'git checkout -b new-feature' },
+                    { cmd: 'git switch <branch>', desc: 'The modern command for switching between branches.', cat: 'Branches', example: 'git switch dev' },
+                    { cmd: 'git branch -d <name>', desc: 'Delete a branch (safe: will not delete if it has unmerged changes).', cat: 'Branches', example: 'git branch -d old-feature' },
+                    { cmd: 'git branch -D <name>', desc: 'Force delete a branch (even if it hasn’t been merged).', cat: 'Branches', example: 'git branch -D experimental' },
+                    // Merging
+                    { cmd: 'git merge <branch>', desc: 'Merge a specific branch into the current branch.', cat: 'Merging', example: 'git merge feature-a' },
+                    { cmd: 'git merge --no-ff', desc: 'Merge while always creating a merge commit (preserves branch history).', cat: 'Merging', example: 'git merge --no-ff feature-b' },
+                    { cmd: 'git merge --abort', desc: 'Abort the merge and return to the state before it (if conflicts occur).', cat: 'Merging', example: 'git merge --abort' },
+                    // Remote
+                    { cmd: 'git remote -v', desc: 'Show the list of remote servers and their URLs.', cat: 'Remote', example: 'git remote -v' },
+                    { cmd: 'git remote add <n> <u>', desc: 'Connect the local repository to a new remote server.', cat: 'Remote', example: 'git remote add origin https://...' },
+                    { cmd: 'git fetch', desc: 'Download updates from the remote server without modifying working files.', cat: 'Remote', example: 'git fetch origin' },
+                    { cmd: 'git pull', desc: 'Download updates and merge them into the current branch immediately.', cat: 'Remote', example: 'git pull origin main' },
+                    { cmd: 'git push', desc: 'Upload local commits to the remote server.', cat: 'Remote', example: 'git push origin main' },
+                    { cmd: 'git push -u origin <br>', desc: 'Push a new branch and set it as the upstream branch.', cat: 'Remote', example: 'git push -u origin feature' },
+                    // Undo
+                    { cmd: 'git restore <file>', desc: 'Discard changes in a file and revert it to the last committed state.', cat: 'Undo Changes', example: 'git restore config.json' },
+                    { cmd: 'git restore --staged <f>', desc: 'Remove a file from the staging area (return to modified state).', cat: 'Undo Changes', example: 'git restore --staged index.html' },
+                    { cmd: 'git clean -fd', desc: 'Delete all untracked files and folders.', cat: 'Undo Changes', example: 'git clean -fd' },
+                    // Tagging
+                    { cmd: 'git tag', desc: 'List all tags (versions) in the repository.', cat: 'Tagging', example: 'git tag' },
+                    { cmd: 'git tag -a <v> -m "msg"', desc: 'Create an annotated tag with a message.', cat: 'Tagging', example: 'git tag -a v1.0 -m "Release v1"' }
+                ]
+            },
+            advanced: {
+                title: "Advanced commands",
+                desc: "Advanced control of history, data recovery, working with stash and complex branch management.",
+                categories: ["Advanced Branching", "Advanced Merging", "Stashing", "Reset", "Revert", "Rebase", "Cherry-picking", "Deep History", "Inspection & Comparison"],
+                commands: [
+                    // Advanced Branching
+                    { cmd: 'git branch -vv', desc: 'Show branches with detailed information about their state relative to the remote.', cat: 'Advanced Branching', example: 'git branch -vv' },
+                    { cmd: 'git branch --merged', desc: 'Show branches that have already been merged into the current branch (safe to delete).', cat: 'Advanced Branching', example: 'git branch --merged' },
+                    // Advanced Merging
+                    { cmd: 'git merge --squash <br>', desc: 'Merge all commits from the branch into a single commit in the target branch.', cat: 'Advanced Merging', example: 'git merge --squash feature-x' },
+                    { cmd: 'git merge -X ours <br>', desc: 'Merge with automatic conflict resolution in favor of our version.', cat: 'Advanced Merging', example: 'git merge -X ours main' },
+                    // Stashing
+                    { cmd: 'git stash', desc: 'Temporarily save unfinished changes aside and clean the working directory.', cat: 'Stashing', example: 'git stash' },
+                    { cmd: 'git stash list', desc: 'Show the list of all stashed changes.', cat: 'Stashing', example: 'git stash list' },
+                    { cmd: 'git stash pop', desc: 'Apply the latest stash and remove it from the list.', cat: 'Stashing', example: 'git stash pop' },
+                    { cmd: 'git stash apply stash@{n}', desc: 'Apply a specific stash without deleting it.', cat: 'Stashing', example: 'git stash apply stash@{1}' },
+                    { cmd: 'git stash clear', desc: 'Delete all stashes permanently.', cat: 'Stashing', example: 'git stash clear' },
+                    // Reset
+                    { cmd: 'git reset --soft HEAD~1', desc: 'Undo the last commit. Changes remain in the staging area.', cat: 'Reset', example: 'git reset --soft HEAD~1' },
+                    { cmd: 'git reset --mixed HEAD~1', desc: 'Undo a commit. Changes remain in the files but are removed from the staging area.', cat: 'Reset', example: 'git reset HEAD~1' },
+                    { cmd: 'git reset --hard HEAD~1', desc: 'Completely delete the last commit and all its changes. Caution!', cat: 'Reset', example: 'git reset --hard HEAD~1' },
+                    // Revert
+                    { cmd: 'git revert <commit>', desc: 'Create a new commit that reverses the changes of a specific commit (safe for remote).', cat: 'Revert', example: 'git revert abc1234' },
+                    // Rebase
+                    { cmd: 'git rebase <branch>', desc: 'Move the history of the current branch and reapply it on top of another branch.', cat: 'Rebase', example: 'git rebase main' },
+                    { cmd: 'git rebase -i HEAD~n', desc: 'Interactive rebase: edit, squash, or delete commits from the history.', cat: 'Rebase', example: 'git rebase -i HEAD~3' },
+                    // Cherry-pick
+                    { cmd: 'git cherry-pick <commit>', desc: 'Copy a specific commit from one branch and apply it to the current branch.', cat: 'Cherry-picking', example: 'git cherry-pick abc1234' },
+                    // Deep History
+                    { cmd: 'git reflog', desc: 'Record of HEAD movements. Allows you to recover almost anything, even if "deleted".', cat: 'Deep History', example: 'git reflog' },
+                    { cmd: 'git log -S "string"', desc: 'Search for commits that added or removed a specific text string.', cat: 'Deep History', example: 'git log -S "apiKey"' },
+                    { cmd: 'git blame <file>', desc: 'Show the commit and last author for each line in a file.', cat: 'Deep History', example: 'git blame index.js' },
+                    // Inspection & Comparison
+                    { cmd: 'git diff <b1>..<b2>', desc: 'Compare differences between two different branches.', cat: 'Inspection & Comparison', example: 'git diff main..dev' },
+                    { cmd: 'git ls-files -o', desc: 'Show a list of all untracked files.', cat: 'Inspection & Comparison', example: 'git ls-files -o' }
+                ]
+            },
+            master: {
+                title: "Expert commands",
+                desc: "Advanced tools for managing complex projects, deep history rewriting, maintenance, and debugging.",
+                categories: ["Debugging (Bisect)", "Submodules", "Worktrees", "Maintenance", "Recovery & Tools", "Patching", "Advanced Configuration"],
+                commands: [
+                    // Bisect
+                    { cmd: 'git bisect start', desc: 'Start a binary search to find the commit where a bug was introduced.', cat: 'Debugging (Bisect)', example: 'git bisect start\ngit bisect bad\ngit bisect good v1.0' },
+                    { cmd: 'git bisect run <script>', desc: 'Run an automated test script to find the problematic commit.', cat: 'Debugging (Bisect)', example: 'git bisect run npm test' },
+                    // Submodules
+                    { cmd: 'git submodule add <url>', desc: 'Add another Git project as a subdirectory within your project.', cat: 'Submodules', example: 'git submodule add https://...' },
+                    { cmd: 'git submodule update --init', desc: 'Initialize and update all submodules in the cloned project.', cat: 'Submodules', example: 'git submodule update --init --recursive' },
+                    // Worktrees
+                    { cmd: 'git worktree add <path> <br>', desc: 'Manage multiple branches simultaneously in separate folders on the same machine.', cat: 'Worktrees', example: 'git worktree add ../feature-branch dev' },
+                    // Maintenance
+                    { cmd: 'git gc --aggressive', desc: 'Perform deep optimization (garbage collection) on the repository data.', cat: 'Maintenance', example: 'git gc --aggressive' },
+                    { cmd: 'git fsck', desc: 'Check the integrity of the repository’s internal files.', cat: 'Maintenance', example: 'git fsck --full' },
+                    { cmd: 'git count-objects -vH', desc: 'Display statistics on the size and objects in the repository.', cat: 'Maintenance', example: 'git count-objects -vH' },
+                    // Patching
+                    { cmd: 'git format-patch HEAD~1', desc: 'Create a patch file from a commit that can be emailed.', cat: 'Patching', example: 'git format-patch HEAD~1' },
+                    { cmd: 'git apply <patch>', desc: 'Apply changes from a patch file without creating a commit.', cat: 'Patching', example: 'git apply fix.patch' },
+                    // Recovery & Tools
+                    { cmd: 'git filter-repo', desc: 'Modern tool for rewriting history (e.g., removing sensitive files from the entire history).', cat: 'Recovery & Tools', example: 'git filter-repo --path secret.txt --invert-paths' },
+                    { cmd: 'git rev-parse HEAD', desc: 'Extract the full hash of the current commit.', cat: 'Recovery & Tools', example: 'git rev-parse HEAD' },
+                    { cmd: 'git describe', desc: 'Create a readable version name based on the last tag and subsequent commits.', cat: 'Recovery & Tools', example: 'git describe' },
+                    // Advanced Configuration
+                    { cmd: 'git config --global alias.<name> <cmd>', desc: 'Create an alias for a long command.', cat: 'Advanced Configuration', example: 'git config --global alias.co checkout' }
+                ]
+            }
+        };
+
+        troubleshootingData = {
+            'undo-commit': {
+                title: 'Undo last commit (keep changes)',
+                desc: 'The commit will be undone, but all your changes will remain in the staging area for you to adjust.',
+                code: 'git reset --soft HEAD~1'
+            },
+            'wrong-branch': {
+                title: 'Commit made to the wrong branch',
+                desc: 'Move the last commit to another branch and remove it from the current one:',
+                code: 'git branch correct-branch\\ngit reset --hard HEAD~1\\ngit checkout correct-branch'
+            },
+            'unstage': {
+                title: 'Undo git add for a file',
+                desc: 'Remove a file you accidentally added to the staging area without deleting its changes:',
+                code: 'git restore --staged <file_name>'
+            },
+            'recover': {
+                title: 'Recover a deleted branch',
+                desc: 'Find the branch hash in the reflog and restore it:',
+                code: 'git reflog\\n# find the last commit on the branch\\ngit checkout -b recovered-branch <hash>'
+            }
+        };
+
+        const app = {
+            currentLevel: 'all',
+            
+            init() {
+                this.renderChart();
+                this.setupSearch();
+            },
+
+            renderChart() {
+                const ctx = document.getElementById('commandsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Basic', 'Advanced', 'Expert'],
+                        datasets: [{
+                            data: [
+                                gitData.basic.commands.length, 
+                                gitData.advanced.commands.length, 
+                                gitData.master.commands.length
+                            ],
+                            backgroundColor: ['#22c55e', '#3b82f6', '#a855f7'],
+                            borderWidth: 5,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { family: 'Heebo', size: 14 } } }
+                        }
+                    }
+                });
+            },
+
+            resetView() {
+                document.getElementById('heroSection').classList.remove('hidden');
+                document.getElementById('commandsSection').classList.add('hidden');
+                document.getElementById('workflowsSection').classList.add('hidden');
+                document.getElementById('troubleshootSection').classList.add('hidden');
+                document.getElementById('searchInput').value = '';
+                window.scrollTo(0,0);
+            },
+
+            filterLevel(level) {
+                this.currentLevel = level;
+                document.getElementById('heroSection').classList.add('hidden');
+                document.getElementById('workflowsSection').classList.add('hidden');
+                document.getElementById('troubleshootSection').classList.add('hidden');
+                document.getElementById('commandsSection').classList.remove('hidden');
+                
+                const data = gitData[level];
+                document.getElementById('sectionTitle').innerText = data.title;
+                document.getElementById('sectionDesc').innerText = data.desc;
+                
+                const catSelect = document.getElementById('categoryFilter');
+                catSelect.innerHTML = '<option value="all">All categories</option>' + 
+                    data.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+                
+                this.renderCommands(data.commands);
+                window.scrollTo(0,0);
+            },
+
+            renderCommands(commands) {
+                const grid = document.getElementById('commandsGrid');
+                if (commands.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400">No matching commands found...</div>';
+                    return;
+                }
+                grid.innerHTML = commands.map(cmd => `
+                    <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-white bg-gray-400 px-2 py-1 rounded">${cmd.cat}</span>
+                                <button onclick="app.copyToClipboard(\`${cmd.example.replace(/\n/g, '\\n')}\`)" class="text-gray-300 hover:text-[#F05032] transition-colors" title="העתק">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                            </div>
+                            <h3 class="font-mono text-lg font-bold text-gray-800 mb-2 border-b border-gray-50 pb-2" dir="ltr">${cmd.cmd}</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed mb-4">${cmd.desc}</p>
+                        </div>
+                        <div class="bg-gray-900 p-4 rounded-lg text-left overflow-x-auto border-l-4 border-green-500">
+                            <code class="font-mono text-sm text-green-400 whitespace-pre" dir="ltr">${cmd.example}</code>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            filterCategory() {
+                const cat = document.getElementById('categoryFilter').value;
+                const allCmds = gitData[this.currentLevel].commands;
+                const filtered = cat === 'all' ? allCmds : allCmds.filter(c => c.cat === cat);
+                this.renderCommands(filtered);
+            },
+
+            showSection(section) {
+                document.getElementById('heroSection').classList.add('hidden');
+                document.getElementById('commandsSection').classList.add('hidden');
+                document.getElementById('workflowsSection').classList.add('hidden');
+                document.getElementById('troubleshootSection').classList.add('hidden');
+                
+                if (section === 'workflows') document.getElementById('workflowsSection').classList.remove('hidden');
+                if (section === 'troubleshoot') document.getElementById('troubleshootSection').classList.remove('hidden');
+                window.scrollTo(0,0);
+            },
+
+            showSolution(key) {
+                const sol = troubleshootingData[key];
+                document.getElementById('ts-solution-title').innerText = sol.title;
+                document.getElementById('ts-solution-desc').innerText = sol.desc;
+                document.getElementById('ts-solution-code').innerText = sol.code;
+                document.getElementById('ts-solution').classList.remove('hidden');
+            },
+
+            setupSearch() {
+                const input = document.getElementById('searchInput');
+                input.addEventListener('input', (e) => {
+                    this.handleSearch(e.target.value);
+                });
+            },
+            
+            handleSearch(term) {
+                 const lowerTerm = term.toLowerCase();
+                 if(!lowerTerm) { 
+                    if(this.currentLevel === 'all') this.resetView(); 
+                    else this.filterLevel(this.currentLevel);
+                    return; 
+                 }
+                 
+                 let allCommands = [];
+                 Object.values(gitData).forEach(lvl => allCommands.push(...lvl.commands));
+                 const filtered = allCommands.filter(c => 
+                    c.cmd.toLowerCase().includes(lowerTerm) || 
+                    c.desc.toLowerCase().includes(lowerTerm) ||
+                    c.cat.toLowerCase().includes(lowerTerm)
+                 );
+                 
+                 document.getElementById('heroSection').classList.add('hidden');
+                 document.getElementById('workflowsSection').classList.add('hidden');
+                 document.getElementById('troubleshootSection').classList.add('hidden');
+                 document.getElementById('commandsSection').classList.remove('hidden');
+                 document.getElementById('sectionTitle').innerText = "Search results for: " + term;
+                 document.getElementById('sectionDesc').innerText = `${filtered.length} relevant commands found.`;
+                 document.getElementById('categoryFilter').innerHTML = '<option value="all">Free search</option>';
+                 
+                 this.renderCommands(filtered);
+            },
+
+            copyToClipboard(text) {
+                const el = document.createElement('textarea');
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                
+                // Show simple feedback
+                const btn = event.currentTarget;
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+                setTimeout(() => btn.innerHTML = originalIcon, 2000);
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+    <!-- Register service worker for offline/PWA support -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('service-worker.js').catch(function(e) {
+            console.warn('Service worker registration failed:', e);
+          });
+        });
+      }
+    </script>
+
+    <!-- Removed Google Translate widget integration -->
+</body>
+</html>

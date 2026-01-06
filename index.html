@@ -353,11 +353,11 @@
                     { cmd: 'git merge --abort', desc: 'ביטול תהליך המיזוג וחזרה למצב שלפניו (במקרה של קונפליקטים).', cat: 'מיזוג', example: 'git merge --abort' },
                     // Remote
                     { cmd: 'git remote -v', desc: 'הצגת רשימת השרתים המרוחקים והכתובות שלהם.', cat: 'שרת מרוחק', example: 'git remote -v' },
-                    { cmd: 'git remote add <n> <u>', desc: 'חיבור המאגר המקומי לשרת מרוחק חדש.', cat: 'שרת מרוחק', example: 'git remote add origin https://...' },
+                    { cmd: 'git remote add', desc: 'חיבור המאגר המקומי לשרת מרוחק חדש.', cat: 'שרת מרוחק', example: 'git remote add origin https://...' },
                     { cmd: 'git fetch', desc: 'הורדת עדכונים מהשרת המרוחק מבלי לשנות את קבצי העבודה.', cat: 'שרת מרוחק', example: 'git fetch origin' },
                     { cmd: 'git pull', desc: 'הורדת עדכונים ומיזוגם לענף הנוכחי באופן מיידי.', cat: 'שרת מרוחק', example: 'git pull origin main' },
                     { cmd: 'git push', desc: 'העלאת הקומיטים המקומיים לשרת המרוחק.', cat: 'שרת מרוחק', example: 'git push origin main' },
-                    { cmd: 'git push -u origin <br>', desc: 'העלאת ענף חדש והגדרתו כענף המעקב (upstream).', cat: 'שרת מרוחק', example: 'git push -u origin feature' },
+                    { cmd: 'git push -u origin', desc: 'העלאת ענף חדש והגדרתו כענף המעקב (upstream).', cat: 'שרת מרוחק', example: 'git push -u origin feature' },
                     // Undo
                     { cmd: 'git restore <file>', desc: 'ביטול שינויים בקובץ וחזרה למצב האחרון בקומיט.', cat: 'ביטול שינויים', example: 'git restore config.json' },
                     { cmd: 'git restore --staged <f>', desc: 'הוצאת קובץ מאזור ה-Staging (החזרה למצב modified).', cat: 'ביטול שינויים', example: 'git restore --staged index.html' },
@@ -376,8 +376,8 @@
                     { cmd: 'git branch -vv', desc: 'הצגת ענפים עם מידע מפורט על מצבם מול ה-Remote.', cat: 'ענפים מתקדם', example: 'git branch -vv' },
                     { cmd: 'git branch --merged', desc: 'הצגת ענפים שכבר מוזגו לענף הנוכחי (בטוחים למחיקה).', cat: 'ענפים מתקדם', example: 'git branch --merged' },
                     // Advanced Merging
-                    { cmd: 'git merge --squash <br>', desc: 'מיזוג כל הקומיטים מהענף לקומיט אחד בודד בענף היעד.', cat: 'מיזוג מתקדם', example: 'git merge --squash feature-x' },
-                    { cmd: 'git merge -X ours <br>', desc: 'מיזוג תוך פתרון קונפליקטים אוטומטי לטובת הגרסה שלנו.', cat: 'מיזוג מתקדם', example: 'git merge -X ours main' },
+                    { cmd: 'git merge --squash', desc: 'מיזוג כל הקומיטים מהענף לקומיט אחד בודד בענף היעד.', cat: 'מיזוג מתקדם', example: 'git merge --squash feature-x' },
+                    { cmd: 'git merge -X ours', desc: 'מיזוג תוך פתרון קונפליקטים אוטומטי לטובת הגרסה שלנו.', cat: 'מיזוג מתקדם', example: 'git merge -X ours main' },
                     // Stashing
                     { cmd: 'git stash', desc: 'שמירה זמנית של שינויים לא גמורים בצד וניקוי סביבת העבודה.', cat: 'Stashing', example: 'git stash' },
                     { cmd: 'git stash list', desc: 'הצגת רשימת כל השמירות הזמניות (stashes).', cat: 'Stashing', example: 'git stash list' },
@@ -416,7 +416,7 @@
                     { cmd: 'git submodule add <url>', desc: 'הוספת פרויקט Git אחר כתיקיית משנה בתוך הפרויקט שלך.', cat: 'Submodules', example: 'git submodule add https://...' },
                     { cmd: 'git submodule update --init', desc: 'אתחול ועדכון כל תתי-המודולים בפרויקט משוכפל.', cat: 'Submodules', example: 'git submodule update --init --recursive' },
                     // Worktrees
-                    { cmd: 'git worktree add <path> <br>', desc: 'ניהול מספר ענפים בו-זמנית בתיקיות נפרדות באותו המחשב.', cat: 'Worktrees', example: 'git worktree add ../feature-branch dev' },
+                    { cmd: 'git worktree add', desc: 'ניהול מספר ענפים בו-זמנית בתיקיות נפרדות באותו המחשב.', cat: 'Worktrees', example: 'git worktree add ../feature-branch dev' },
                     // Maintenance
                     { cmd: 'git gc --aggressive', desc: 'ביצוע אופטימיזציה עמוקה למאגר הנתונים (Garbage Collection).', cat: 'תחזוקה', example: 'git gc --aggressive' },
                     { cmd: 'git fsck', desc: 'בדיקת תקינות הקבצים הפנימיים של המאגר.', cat: 'תחזוקה', example: 'git fsck --full' },
@@ -528,18 +528,17 @@
                     grid.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400">לא נמצאו פקודות תואמות...</div>';
                     return;
                 }
-                // קבע את מספר העמודות על־פי כמות הפקודות
-                if (commands.length === 1) {
-                    grid.className = 'grid grid-cols-1 gap-6';
-                } else {
-                    grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
-                }
-                grid.innerHTML = commands.map(cmd => `
-                    <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between h-full">
+                // הצג פקודות בשתי עמודות במסכים בינוניים ומעלה. אם מספר הפקודות אי‑זוגי, הרחב את הכרטיס האחרון על פני שתי עמודות כדי להימנע מחצי עמוד ריק.
+                grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
+                grid.innerHTML = commands.map((cmd, index) => {
+                    const colSpan = (commands.length % 2 !== 0 && index === commands.length - 1) ? 'md:col-span-2' : '';
+                    const example = (cmd.example || cmd.cmd).trim();
+                    return `
+                    <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between ${colSpan}">
                         <div>
                             <div class="flex justify-between items-start mb-3">
                                 <span class="text-[10px] font-bold uppercase tracking-widest text-white bg-gray-400 px-2 py-1 rounded">${cmd.cat}</span>
-                                <button onclick="app.copyToClipboard(\`${cmd.example.replace(/\n/g, '\\n')}\`)" class="text-gray-300 hover:text-[#F05032] transition-colors" title="העתק">
+                                <button onclick="app.copyToClipboard(\`${example.replace(/\n/g, '\\n')}\`)" class="text-gray-300 hover:text-[#F05032] transition-colors" title="העתק">
                                     <i class="far fa-copy"></i>
                                 </button>
                             </div>
@@ -547,10 +546,11 @@
                             <p class="text-gray-600 text-sm leading-relaxed mb-4">${cmd.desc}</p>
                         </div>
                         <div class="bg-gray-900 p-4 rounded-lg text-left overflow-x-auto border-l-4 border-green-500">
-                            <code class="font-mono text-sm text-green-400 whitespace-pre" dir="ltr">${cmd.example}</code>
+                            <code class="font-mono text-sm text-green-400 whitespace-pre" dir="ltr">${example}</code>
                         </div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
             },
 
             filterCategory() {

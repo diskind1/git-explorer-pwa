@@ -1,7 +1,14 @@
-const CACHE_NAME = 'git-explorer-cache-v1';
+// Bump the cache version. Changing this value forces the browser to re-fetch
+// updated assets and avoids stale cached pages after deployments.
+const CACHE_NAME = 'git-explorer-cache-v2';
 const PRECACHE_URLS = [
   '/',
   'index.html',
+  // Precache translated language pages so they are available offline and updates
+  // to these pages are picked up when the service worker version changes.
+  'index_en.html',
+  'index_ru.html',
+  'index_fr.html',
   'manifest.json',
   'icons/icon-192.png',
   'icons/icon-512.png'

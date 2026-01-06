@@ -353,11 +353,11 @@
                     { cmd: 'git merge --abort', desc: 'ביטול תהליך המיזוג וחזרה למצב שלפניו (במקרה של קונפליקטים).', cat: 'מיזוג', example: 'git merge --abort' },
                     // Remote
                     { cmd: 'git remote -v', desc: 'הצגת רשימת השרתים המרוחקים והכתובות שלהם.', cat: 'שרת מרוחק', example: 'git remote -v' },
-                    { cmd: 'git remote add <n> <u>', desc: 'חיבור המאגר המקומי לשרת מרוחק חדש.', cat: 'שרת מרוחק', example: 'git remote add origin https://...' },
+                    { cmd: 'git remote add', desc: 'חיבור המאגר המקומי לשרת מרוחק חדש.', cat: 'שרת מרוחק', example: 'git remote add origin https://...' },
                     { cmd: 'git fetch', desc: 'הורדת עדכונים מהשרת המרוחק מבלי לשנות את קבצי העבודה.', cat: 'שרת מרוחק', example: 'git fetch origin' },
                     { cmd: 'git pull', desc: 'הורדת עדכונים ומיזוגם לענף הנוכחי באופן מיידי.', cat: 'שרת מרוחק', example: 'git pull origin main' },
                     { cmd: 'git push', desc: 'העלאת הקומיטים המקומיים לשרת המרוחק.', cat: 'שרת מרוחק', example: 'git push origin main' },
-                    { cmd: 'git push -u origin <br>', desc: 'העלאת ענף חדש והגדרתו כענף המעקב (upstream).', cat: 'שרת מרוחק', example: 'git push -u origin feature' },
+                    { cmd: 'git push -u origin', desc: 'העלאת ענף חדש והגדרתו כענף המעקב (upstream).', cat: 'שרת מרוחק', example: 'git push -u origin feature' },
                     // Undo
                     { cmd: 'git restore <file>', desc: 'ביטול שינויים בקובץ וחזרה למצב האחרון בקומיט.', cat: 'ביטול שינויים', example: 'git restore config.json' },
                     { cmd: 'git restore --staged <f>', desc: 'הוצאת קובץ מאזור ה-Staging (החזרה למצב modified).', cat: 'ביטול שינויים', example: 'git restore --staged index.html' },
@@ -506,11 +506,11 @@
                     { cmd: 'git merge --abort', desc: 'Abort the merge and return to the state before it (if conflicts occur).', cat: 'Merging', example: 'git merge --abort' },
                     // Remote
                     { cmd: 'git remote -v', desc: 'Show the list of remote servers and their URLs.', cat: 'Remote', example: 'git remote -v' },
-                    { cmd: 'git remote add <n> <u>', desc: 'Connect the local repository to a new remote server.', cat: 'Remote', example: 'git remote add origin https://...' },
+                    { cmd: 'git remote add', desc: 'Connect the local repository to a new remote server.', cat: 'Remote', example: 'git remote add origin https://...' },
                     { cmd: 'git fetch', desc: 'Download updates from the remote server without modifying working files.', cat: 'Remote', example: 'git fetch origin' },
                     { cmd: 'git pull', desc: 'Download updates and merge them into the current branch immediately.', cat: 'Remote', example: 'git pull origin main' },
                     { cmd: 'git push', desc: 'Upload local commits to the remote server.', cat: 'Remote', example: 'git push origin main' },
-                    { cmd: 'git push -u origin <br>', desc: 'Push a new branch and set it as the upstream branch.', cat: 'Remote', example: 'git push -u origin feature' },
+                    { cmd: 'git push -u origin', desc: 'Push a new branch and set it as the upstream branch.', cat: 'Remote', example: 'git push -u origin feature' },
                     // Undo
                     { cmd: 'git restore <file>', desc: 'Discard changes in a file and revert it to the last committed state.', cat: 'Undo Changes', example: 'git restore config.json' },
                     { cmd: 'git restore --staged <f>', desc: 'Remove a file from the staging area (return to modified state).', cat: 'Undo Changes', example: 'git restore --staged index.html' },
@@ -529,8 +529,8 @@
                     { cmd: 'git branch -vv', desc: 'Show branches with detailed information about their state relative to the remote.', cat: 'Advanced Branching', example: 'git branch -vv' },
                     { cmd: 'git branch --merged', desc: 'Show branches that have already been merged into the current branch (safe to delete).', cat: 'Advanced Branching', example: 'git branch --merged' },
                     // Advanced Merging
-                    { cmd: 'git merge --squash <br>', desc: 'Merge all commits from the branch into a single commit in the target branch.', cat: 'Advanced Merging', example: 'git merge --squash feature-x' },
-                    { cmd: 'git merge -X ours <br>', desc: 'Merge with automatic conflict resolution in favor of our version.', cat: 'Advanced Merging', example: 'git merge -X ours main' },
+                    { cmd: 'git merge --squash', desc: 'Merge all commits from the branch into a single commit in the target branch.', cat: 'Advanced Merging', example: 'git merge --squash feature-x' },
+                    { cmd: 'git merge -X ours', desc: 'Merge with automatic conflict resolution in favor of our version.', cat: 'Advanced Merging', example: 'git merge -X ours main' },
                     // Stashing
                     { cmd: 'git stash', desc: 'Temporarily save unfinished changes aside and clean the working directory.', cat: 'Stashing', example: 'git stash' },
                     { cmd: 'git stash list', desc: 'Show the list of all stashed changes.', cat: 'Stashing', example: 'git stash list' },
@@ -682,14 +682,18 @@
                     grid.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400">No matching commands found...</div>';
                     return;
                 }
-                // Always display commands in a single column to avoid empty half-columns
-                grid.className = 'grid grid-cols-1 gap-6';
-                grid.innerHTML = commands.map(cmd => `
-                    <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between h-full">
+                // Display commands in two columns on medium screens. If there's an odd number of commands,
+                // make the last card span both columns to avoid an empty half-column.
+                grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
+                grid.innerHTML = commands.map((cmd, index) => {
+                    const colSpan = (commands.length % 2 !== 0 && index === commands.length - 1) ? 'md:col-span-2' : '';
+                    const example = (cmd.example || cmd.cmd).trim();
+                    return `
+                    <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between h-full ${colSpan}">
                         <div>
                             <div class="flex justify-between items-start mb-3">
                                 <span class="text-[10px] font-bold uppercase tracking-widest text-white bg-gray-400 px-2 py-1 rounded">${cmd.cat}</span>
-                                <button onclick="app.copyToClipboard(\`${cmd.example.replace(/\n/g, '\\n')}\`)" class="text-gray-300 hover:text-[#F05032] transition-colors" title="Copy">
+                                <button onclick="app.copyToClipboard(\`${example.replace(/\n/g, '\\n')}\`)" class="text-gray-300 hover:text-[#F05032] transition-colors" title="Copy">
                                     <i class="far fa-copy"></i>
                                 </button>
                             </div>
@@ -697,10 +701,11 @@
                             <p class="text-gray-600 text-sm leading-relaxed mb-4">${cmd.desc}</p>
                         </div>
                         <div class="bg-gray-900 p-4 rounded-lg text-left overflow-x-auto border-l-4 border-green-500">
-                            <code class="font-mono text-sm text-green-400 whitespace-pre" dir="ltr">${cmd.example}</code>
+                            <code class="font-mono text-sm text-green-400 whitespace-pre" dir="ltr">${example}</code>
                         </div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
             },
 
             filterCategory() {

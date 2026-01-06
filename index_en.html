@@ -302,7 +302,7 @@
 </div>
 
             <p class="text-gray-400 text-sm mb-2">Updated with all commands from the Complete Reference Guide</p>
-            <a href="https://share.google/ASExj6dNud3na5a0d" class="text-xs text-gray-500" style="color: aqua; font-size: 100%;">Created by Menni Diskind and Chat... :) based on what Yosef sent.</a>
+            <a href="https://share.google/ASExj6dNud3na5a0d" class="text-xs text-gray-500" style="color: aqua; font-size: 100%;">Created by Menni Diskind, based on what Yosef sent.</a>
         </div>
     </footer>
     </div>
@@ -416,7 +416,7 @@
                     { cmd: 'git submodule add <url>', desc: 'הוספת פרויקט Git אחר כתיקיית משנה בתוך הפרויקט שלך.', cat: 'Submodules', example: 'git submodule add https://...' },
                     { cmd: 'git submodule update --init', desc: 'אתחול ועדכון כל תתי-המודולים בפרויקט משוכפל.', cat: 'Submodules', example: 'git submodule update --init --recursive' },
                     // Worktrees
-                    { cmd: 'git worktree add <path> <br>', desc: 'ניהול מספר ענפים בו-זמנית בתיקיות נפרדות באותו המחשב.', cat: 'Worktrees', example: 'git worktree add ../feature-branch dev' },
+                    { cmd: 'git worktree add', desc: 'ניהול מספר ענפים בו-זמנית בתיקיות נפרדות באותו המחשב.', cat: 'Worktrees', example: 'git worktree add ../feature-branch dev' },
                     // Maintenance
                     { cmd: 'git gc --aggressive', desc: 'ביצוע אופטימיזציה עמוקה למאגר הנתונים (Garbage Collection).', cat: 'תחזוקה', example: 'git gc --aggressive' },
                     { cmd: 'git fsck', desc: 'בדיקת תקינות הקבצים הפנימיים של המאגר.', cat: 'תחזוקה', example: 'git fsck --full' },
@@ -569,7 +569,7 @@
                     { cmd: 'git submodule add <url>', desc: 'Add another Git project as a subdirectory within your project.', cat: 'Submodules', example: 'git submodule add https://...' },
                     { cmd: 'git submodule update --init', desc: 'Initialize and update all submodules in the cloned project.', cat: 'Submodules', example: 'git submodule update --init --recursive' },
                     // Worktrees
-                    { cmd: 'git worktree add <path> <br>', desc: 'Manage multiple branches simultaneously in separate folders on the same machine.', cat: 'Worktrees', example: 'git worktree add ../feature-branch dev' },
+                    { cmd: 'git worktree add', desc: 'Manage multiple branches simultaneously in separate folders on the same machine.', cat: 'Worktrees', example: 'git worktree add ../feature-branch dev' },
                     // Maintenance
                     { cmd: 'git gc --aggressive', desc: 'Perform deep optimization (garbage collection) on the repository data.', cat: 'Maintenance', example: 'git gc --aggressive' },
                     { cmd: 'git fsck', desc: 'Check the integrity of the repository’s internal files.', cat: 'Maintenance', example: 'git fsck --full' },
@@ -689,7 +689,7 @@
                     const colSpan = (commands.length % 2 !== 0 && index === commands.length - 1) ? 'md:col-span-2' : '';
                     const example = (cmd.example || cmd.cmd).trim();
                     return `
-                    <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between h-full ${colSpan}">
+                    <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between ${colSpan}">
                         <div>
                             <div class="flex justify-between items-start mb-3">
                                 <span class="text-[10px] font-bold uppercase tracking-widest text-white bg-gray-400 px-2 py-1 rounded">${cmd.cat}</span>

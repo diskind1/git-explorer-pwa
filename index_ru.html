@@ -202,7 +202,8 @@
                 </div>
             </div>
             
-            <div id="commandsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Сетка команд: одна колонка по умолчанию; JS обновит количество колонок при необходимости -->
+            <div id="commandsGrid" class="grid grid-cols-1 gap-6">
                 <!-- Cards injected here -->
             </div>
         </div>
@@ -663,10 +664,14 @@
 
             renderCommands(commands) {
                 const grid = document.getElementById('commandsGrid');
+                // Если нет совпадений, показываем сообщение
                 if (commands.length === 0) {
+                    grid.className = 'grid grid-cols-1 gap-6';
                     grid.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400">Соответствующих команд не найдено...</div>';
                     return;
                 }
+                // Отображаем команды в одной колонке, чтобы избежать пустых половинных колонок
+                grid.className = 'grid grid-cols-1 gap-6';
                 grid.innerHTML = commands.map(cmd => `
                     <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between h-full">
                         <div>

@@ -201,7 +201,8 @@
                 </div>
             </div>
             
-            <div id="commandsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Commands grid: start with one column; JS will adjust to two columns when needed -->
+            <div id="commandsGrid" class="grid grid-cols-1 gap-6">
                 <!-- Cards injected here -->
             </div>
         </div>
@@ -674,16 +675,21 @@
 
             renderCommands(commands) {
                 const grid = document.getElementById('commandsGrid');
+                // If no commands match, show a message
                 if (commands.length === 0) {
+                    // ensure single column
+                    grid.className = 'grid grid-cols-1 gap-6';
                     grid.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400">No matching commands found...</div>';
                     return;
                 }
+                // Always display commands in a single column to avoid empty half-columns
+                grid.className = 'grid grid-cols-1 gap-6';
                 grid.innerHTML = commands.map(cmd => `
                     <div class="cmd-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between h-full">
                         <div>
                             <div class="flex justify-between items-start mb-3">
                                 <span class="text-[10px] font-bold uppercase tracking-widest text-white bg-gray-400 px-2 py-1 rounded">${cmd.cat}</span>
-                                <button onclick="app.copyToClipboard(\`${cmd.example.replace(/\n/g, '\\n')}\`)" class="text-gray-300 hover:text-[#F05032] transition-colors" title="העתק">
+                                <button onclick="app.copyToClipboard(\`${cmd.example.replace(/\n/g, '\\n')}\`)" class="text-gray-300 hover:text-[#F05032] transition-colors" title="Copy">
                                     <i class="far fa-copy"></i>
                                 </button>
                             </div>

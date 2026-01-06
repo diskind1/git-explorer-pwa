@@ -106,6 +106,15 @@
                     <button onclick="app.showSection('workflows')" class="nav-btn hover:text-[#F05032] transition-colors">זרימות עבודה</button>
                     <button onclick="app.showSection('troubleshoot')" class="nav-btn hover:text-[#F05032] transition-colors">פתרון תקלות</button>
                 </nav>
+                <!-- Language Selector (desktop) -->
+                <div class="hidden md:block ml-4">
+                    <select onchange="location.href=this.value" class="p-2 border rounded bg-white text-gray-700">
+                        <option value="index.html" selected>עברית</option>
+                        <option value="index_en.html">English</option>
+                        <option value="index_ru.html">Русский</option>
+                        <option value="index_fr.html">Français</option>
+                    </select>
+                </div>
 
 
                 <!-- Search -->
@@ -130,6 +139,13 @@
                     <button onclick="app.filterLevel('master')" class="text-right py-2 border-b">מומחה</button>
                     <button onclick="app.showSection('workflows')" class="text-right py-2 border-b">זרימות עבודה</button>
                     <button onclick="app.showSection('troubleshoot')" class="text-right py-2">פתרון תקלות</button>
+                    <!-- Language Selector (mobile) -->
+                    <select onchange="location.href=this.value" class="p-2 border rounded w-full mt-2">
+                        <option value="index.html" selected>עברית</option>
+                        <option value="index_en.html">English</option>
+                        <option value="index_ru.html">Русский</option>
+                        <option value="index_fr.html">Français</option>
+                    </select>
                 </div>
             </div>
         </div>

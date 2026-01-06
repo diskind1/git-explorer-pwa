@@ -308,7 +308,7 @@
     </footer>
     </div>
     <script>
-        const gitData = {
+        let gitData = {
             basic: {
                 title: "פקודות בסיסיות",
                 desc: "היסודות שכל מפתח חייב להכיר: הגדרות, יצירת מאגר, זרימת עבודה יומיומית וניהול ענפים.",
@@ -431,6 +431,147 @@
                     { cmd: 'git describe', desc: 'יצירת שם גרסה קריא המבוסס על התג האחרון והקומיטים מאז.', cat: 'שחזור וכלים', example: 'git describe' },
                     // Advanced Config
                     { cmd: 'git config --global alias.<name> <cmd>', desc: 'יצירת קיצור דרך (alias) לפקודה ארוכה.', cat: 'הגדרות מתקדמות', example: 'git config --global alias.co checkout' }
+                ]
+            }
+        };
+
+        // Override the gitData dataset with English translations.
+        // This ensures that command titles, descriptions, categories and examples appear in English,
+        // while the UI remains in French. The English dataset is defined here and assigned to gitData.
+        gitData = {
+            basic: {
+                title: "Basic commands",
+                desc: "The essentials every developer must know: configuration, repository creation, daily workflow and branch management.",
+                categories: ["Configuration", "Initialization", "Workflow", "History", "Branches", "Merging", "Remote", "Undo Changes", "Tagging"],
+                commands: [
+                    // Configuration
+                    { cmd: 'git config --global user.name "Name"', desc: 'Set the global user name for all commits in the system.', cat: 'Configuration', example: 'git config --global user.name "John Doe"' },
+                    { cmd: 'git config --global user.email "email"', desc: 'Set the global email address that will appear in the project history.', cat: 'Configuration', example: 'git config --global user.email "john@example.com"' },
+                    { cmd: 'git config --list', desc: 'Display all current Git configuration settings in the system.', cat: 'Configuration', example: 'git config --list' },
+                    { cmd: 'git config --global --edit', desc: 'Open the global configuration file in the default text editor.', cat: 'Configuration', example: 'git config --global --edit' },
+                    // Setup
+                    { cmd: 'git init', desc: 'Create a new Git repository (.git directory) in the current folder.', cat: 'Initialization', example: 'git init' },
+                    { cmd: 'git clone <url>', desc: 'Download a full copy of a remote repository to the local machine.', cat: 'Initialization', example: 'git clone https://github.com/user/repo.git' },
+                    { cmd: 'git clone <url> <dir>', desc: 'Clone a remote repository into a specific folder.', cat: 'Initialization', example: 'git clone <url> my-custom-folder' },
+                    // Workflow
+                    { cmd: 'git status', desc: 'Show the current status: modified files, staged files and current branch.', cat: 'Workflow', example: 'git status' },
+                    { cmd: 'git add <file>', desc: 'Add a specific file to the staging area before committing.', cat: 'Workflow', example: 'git add index.html' },
+                    { cmd: 'git add .', desc: 'Add all changed files in the current directory to the staging area.', cat: 'Workflow', example: 'git add .' },
+                    { cmd: 'git add -A', desc: 'Add all changes in the repository (including deletions) to the staging area.', cat: 'Workflow', example: 'git add -A' },
+                    { cmd: 'git add -p', desc: 'Interactive add: allows you to choose specific parts (chunks) of a file.', cat: 'Workflow', example: 'git add -p file.txt' },
+                    { cmd: 'git commit -m "msg"', desc: 'Create a commit (snapshot) with a message describing the changes.', cat: 'Workflow', example: 'git commit -m "Fix login bug"' },
+                    { cmd: 'git commit -am "msg"', desc: 'Add all tracked files and commit in a single step.', cat: 'Workflow', example: 'git commit -am "Quick fix"' },
+                    { cmd: 'git commit --amend', desc: 'Edit the last commit (add files or change the message).', cat: 'Workflow', example: 'git commit --amend --no-edit' },
+                    // History
+                    { cmd: 'git log', desc: 'Display the full list of commits in reverse chronological order.', cat: 'History', example: 'git log' },
+                    { cmd: 'git log --oneline', desc: 'Show the history concisely (one line per commit).', cat: 'History', example: 'git log --oneline' },
+                    { cmd: 'git log --graph', desc: 'Show the history with an ASCII graph of branches and merges.', cat: 'History', example: 'git log --graph --oneline --all' },
+                    { cmd: 'git log -p', desc: 'Show detailed diffs of changes made in each commit.', cat: 'History', example: 'git log -p' },
+                    { cmd: 'git show <commit>', desc: 'Show full details and code changes of a specific commit.', cat: 'History', example: 'git show abc1234' },
+                    { cmd: 'git diff', desc: 'Show changes made to files that have not yet been staged.', cat: 'History', example: 'git diff' },
+                    { cmd: 'git diff --staged', desc: 'Show changes that are staged and will be included in the next commit.', cat: 'History', example: 'git diff --staged' },
+                    // Branching
+                    { cmd: 'git branch', desc: 'List all local branches. The current branch is marked with *.', cat: 'Branches', example: 'git branch' },
+                    { cmd: 'git branch <name>', desc: 'Create a new branch (without switching to it).', cat: 'Branches', example: 'git branch feature-x' },
+                    { cmd: 'git checkout <branch>', desc: 'Switch to an existing branch.', cat: 'Branches', example: 'git checkout main' },
+                    { cmd: 'git checkout -b <name>', desc: 'Create a new branch and switch to it immediately.', cat: 'Branches', example: 'git checkout -b new-feature' },
+                    { cmd: 'git switch <branch>', desc: 'The modern command for switching between branches.', cat: 'Branches', example: 'git switch dev' },
+                    { cmd: 'git branch -d <name>', desc: 'Delete a branch (safe: will not delete if it has unmerged changes).', cat: 'Branches', example: 'git branch -d old-feature' },
+                    { cmd: 'git branch -D <name>', desc: 'Force delete a branch (even if it hasn’t been merged).', cat: 'Branches', example: 'git branch -D experimental' },
+                    // Merging
+                    { cmd: 'git merge <branch>', desc: 'Merge a specific branch into the current branch.', cat: 'Merging', example: 'git merge feature-a' },
+                    { cmd: 'git merge --no-ff', desc: 'Merge while always creating a merge commit (preserves branch history).', cat: 'Merging', example: 'git merge --no-ff feature-b' },
+                    { cmd: 'git merge --abort', desc: 'Abort the merge and return to the state before it (if conflicts occur).', cat: 'Merging', example: 'git merge --abort' },
+                    // Remote
+                    { cmd: 'git remote -v', desc: 'Show the list of remote servers and their URLs.', cat: 'Remote', example: 'git remote -v' },
+                    { cmd: 'git remote add <n> <u>', desc: 'Connect the local repository to a new remote server.', cat: 'Remote', example: 'git remote add origin https://...' },
+                    { cmd: 'git fetch', desc: 'Download updates from the remote server without modifying working files.', cat: 'Remote', example: 'git fetch origin' },
+                    { cmd: 'git pull', desc: 'Download updates and merge them into the current branch immediately.', cat: 'Remote', example: 'git pull origin main' },
+                    { cmd: 'git push', desc: 'Upload local commits to the remote server.', cat: 'Remote', example: 'git push origin main' },
+                    { cmd: 'git push -u origin <br>', desc: 'Push a new branch and set it as the upstream branch.', cat: 'Remote', example: 'git push -u origin feature' },
+                    // Undo
+                    { cmd: 'git restore <file>', desc: 'Discard changes in a file and revert it to the last committed state.', cat: 'Undo Changes', example: 'git restore config.json' },
+                    { cmd: 'git restore --staged <f>', desc: 'Remove a file from the staging area (return to modified state).', cat: 'Undo Changes', example: 'git restore --staged index.html' },
+                    { cmd: 'git clean -fd', desc: 'Delete all untracked files and folders.', cat: 'Undo Changes', example: 'git clean -fd' },
+                    // Tagging
+                    { cmd: 'git tag', desc: 'List all tags (versions) in the repository.', cat: 'Tagging', example: 'git tag' },
+                    { cmd: 'git tag -a <v> -m "msg"', desc: 'Create an annotated tag with a message.', cat: 'Tagging', example: 'git tag -a v1.0 -m "Release v1"' }
+                ]
+            },
+            advanced: {
+                title: "Advanced commands",
+                desc: "Advanced control of history, data recovery, working with stash and complex branch management.",
+                categories: ["Advanced Branching", "Advanced Merging", "Stashing", "Reset", "Revert", "Rebase", "Cherry-picking", "Deep History", "Inspection & Comparison"],
+                commands: [
+                    // Advanced Branching
+                    { cmd: 'git branch -vv', desc: 'Show branches with detailed information about their state relative to the remote.', cat: 'Advanced Branching', example: 'git branch -vv' },
+                    { cmd: 'git branch --merged', desc: 'Show branches that have already been merged into the current branch (safe to delete).', cat: 'Advanced Branching', example: 'git branch --merged' },
+                    // Advanced Merging
+                    { cmd: 'git merge --squash <br>', desc: 'Merge all commits from the branch into a single commit in the target branch.', cat: 'Advanced Merging', example: 'git merge --squash feature-x' },
+                    { cmd: 'git merge -X ours <br>', desc: 'Merge with automatic conflict resolution in favor of our version.', cat: 'Advanced Merging', example: 'git merge -X ours main' },
+                    // Stashing
+                    { cmd: 'git stash', desc: 'Temporarily save unfinished changes aside and clean the working directory.', cat: 'Stashing', example: 'git stash' },
+                    { cmd: 'git stash list', desc: 'Show the list of all stashed changes.', cat: 'Stashing', example: 'git stash list' },
+                    { cmd: 'git stash pop', desc: 'Apply the latest stash and remove it from the list.', cat: 'Stashing', example: 'git stash pop' },
+                    { cmd: 'git stash apply stash@{n}', desc: 'Apply a specific stash without deleting it.', cat: 'Stashing', example: 'git stash apply stash@{1}' },
+                    { cmd: 'git stash clear', desc: 'Delete all stashes permanently.', cat: 'Stashing', example: 'git stash clear' },
+                    // Reset
+                    { cmd: 'git reset --soft HEAD~1', desc: 'Undo the last commit. Changes remain in the staging area.', cat: 'Reset', example: 'git reset --soft HEAD~1' },
+                    { cmd: 'git reset --mixed HEAD~1', desc: 'Undo a commit. Changes remain in the files but are removed from the staging area.', cat: 'Reset', example: 'git reset HEAD~1' },
+                    { cmd: 'git reset --hard HEAD~1', desc: 'Completely delete the last commit and all its changes. Caution!', cat: 'Reset', example: 'git reset --hard HEAD~1' },
+                    // Revert
+                    { cmd: 'git revert <commit>', desc: 'Create a new commit that reverses the changes of a specific commit (safe for remote).', cat: 'Revert', example: 'git revert abc1234' },
+                    // Rebase
+                    { cmd: 'git rebase <branch>', desc: 'Move the history of the current branch and reapply it on top of another branch.', cat: 'Rebase', example: 'git rebase main' },
+                    { cmd: 'git rebase -i HEAD~n', desc: 'Interactive rebase: edit, squash, or delete commits from the history.', cat: 'Rebase', example: 'git rebase -i HEAD~3' },
+                    // Cherry-picking
+                    { cmd: 'git cherry-pick <commit>', desc: 'Copy a specific commit from one branch and apply it to the current branch.', cat: 'Cherry-picking', example: 'git cherry-pick abc1234' },
+                    // Deep History
+                    { cmd: 'git bisect', desc: 'Find the commit that introduced a bug by binary searching the history.', cat: 'Deep History', example: 'git bisect start; git bisect good <good_commit>; git bisect bad <bad_commit>' },
+                    { cmd: 'git reflog', desc: 'Show a log of where your HEAD and branch references have been.', cat: 'Deep History', example: 'git reflog' },
+                    { cmd: 'git blame <file>', desc: 'Show line-by-line revision and author info for a file (annotate).', cat: 'Deep History', example: 'git blame index.js' },
+                    // Inspection & Comparison
+                    { cmd: 'git diff <a..b>', desc: 'Compare the differences between two commits or branches.', cat: 'Inspection & Comparison', example: 'git diff main..feature' },
+                    { cmd: 'git show <commit>', desc: 'Show changes and metadata for a specific commit.', cat: 'Inspection & Comparison', example: 'git show abc1234' },
+                    { cmd: 'git log --decorate', desc: 'Show commit history with branch and tag names.', cat: 'Inspection & Comparison', example: 'git log --decorate --oneline --graph' },
+                    { cmd: 'git log -S <string>', desc: 'Search commits that add or remove a given string.', cat: 'Inspection & Comparison', example: 'git log -S "function"' }
+                ]
+            },
+            master: {
+                title: "Expert commands",
+                desc: "Master-level commands for advanced history control, data recovery, working with stash, complex branch management and hooks.",
+                categories: ["Stash Management", "Data Recovery", "Work Trees", "Hooks", "Bisect", "Submodules", "Rewriting History", "Advanced Configuration", "Recovery & Tools"],
+                commands: [
+                    // Stash Management
+                    { cmd: 'git stash save "msg"', desc: 'Save uncommitted changes with a custom name.', cat: 'Stash Management', example: 'git stash save "WIP feature-x"' },
+                    { cmd: 'git stash push -m "msg"', desc: 'Save changes with a message (modern form).', cat: 'Stash Management', example: 'git stash push -m "WIP fix"' },
+                    { cmd: 'git stash drop <stash>', desc: 'Delete a specific stash.', cat: 'Stash Management', example: 'git stash drop stash@{1}' },
+                    { cmd: 'git stash branch <name> stash@{n}', desc: 'Create a new branch from a stash and apply it.', cat: 'Stash Management', example: 'git stash branch fix-bug stash@{0}' },
+                    // Data Recovery
+                    { cmd: 'git fsck', desc: 'Check the integrity of the Git file system and objects.', cat: 'Data Recovery', example: 'git fsck' },
+                    { cmd: 'git gc', desc: 'Optimize the repository by compressing file history and removing unreachable objects.', cat: 'Data Recovery', example: 'git gc' },
+                    { cmd: 'git prune', desc: 'Remove unreachable objects to clean up unnecessary data.', cat: 'Data Recovery', example: 'git prune' },
+                    // Work Trees
+                    { cmd: 'git worktree add <path> <branch>', desc: 'Create a new working tree linked to an existing repository and checkout a branch.', cat: 'Work Trees', example: 'git worktree add ../other-branch other-branch' },
+                    { cmd: 'git worktree list', desc: 'List all linked working trees and their branches.', cat: 'Work Trees', example: 'git worktree list' },
+                    // Hooks
+                    { cmd: 'git commit-msg <hook>', desc: 'Define a custom script to validate commit messages.', cat: 'Hooks', example: 'vim .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg' },
+                    { cmd: 'git pre-commit <hook>', desc: 'Run custom scripts before creating a commit.', cat: 'Hooks', example: 'vim .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit' },
+                    // Bisect
+                    { cmd: 'git bisect start', desc: 'Start the bisect process.', cat: 'Bisect', example: 'git bisect start' },
+                    { cmd: 'git bisect bad', desc: 'Mark the current commit as bad during bisect.', cat: 'Bisect', example: 'git bisect bad' },
+                    { cmd: 'git bisect good <commit>', desc: 'Mark a known good commit.', cat: 'Bisect', example: 'git bisect good abc1234' },
+                    { cmd: 'git bisect reset', desc: 'Reset and finish the bisect search.', cat: 'Bisect', example: 'git bisect reset' },
+                    // Submodules
+                    { cmd: 'git submodule add <url>', desc: 'Add a new submodule to the repository.', cat: 'Submodules', example: 'git submodule add https://github.com/vendor/lib.git vendor/lib' },
+                    { cmd: 'git submodule update --init --recursive', desc: 'Initialize, fetch and checkout the correct commits of the submodules.', cat: 'Submodules', example: 'git submodule update --init --recursive' },
+                    // Rewriting History
+                    { cmd: 'git filter-branch --tree-filter', desc: 'Rewrite history by applying a command to each commit (e.g., removing a file across history).', cat: 'Rewriting History', example: 'git filter-branch --tree-filter "rm filename" -- --all' },
+                    { cmd: 'git filter-repo', desc: 'Modern tool for rewriting history (e.g., removing sensitive files from the entire history).', cat: 'Rewriting History', example: 'git filter-repo --path secret.txt --invert-paths' },
+                    { cmd: 'git rev-parse HEAD', desc: 'Extract the full hash of the current commit.', cat: 'Recovery & Tools', example: 'git rev-parse HEAD' },
+                    { cmd: 'git describe', desc: 'Create a readable version name based on the last tag and subsequent commits.', cat: 'Recovery & Tools', example: 'git describe' },
+                    // Advanced Configuration
+                    { cmd: 'git config --global alias.<name> <cmd>', desc: 'Create an alias for a long command.', cat: 'Advanced Configuration', example: 'git config --global alias.co checkout' }
                 ]
             }
         };

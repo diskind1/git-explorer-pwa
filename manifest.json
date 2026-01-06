@@ -1,6 +1,6 @@
 {
-  "name": "Git Explorer",
-  "short_name": "GitExplorer",
+  "name": "pkugit",
+  "short_name": "pkugit",
   "description": "המדריך המלא לפקודות Git.",
   "start_url": ".",
   "display": "standalone",
